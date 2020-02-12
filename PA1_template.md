@@ -121,7 +121,7 @@ hist(histogramdata$steps, xlab = "Total Steps per day", col = "yellow", main  ="
 rug(histogramdata$steps) 
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 ```r
 medianValue <- median(histogramdata$steps, na.rm = TRUE)
@@ -169,7 +169,7 @@ activitypattern <- summarize_at(activitypattern, .vars = c("steps"),mean, na.rm 
 with(activitypattern, plot(interval,steps, type = "l", col = "black", ylab = "Average Steps",main = "Average Daily Activity Pattern"))
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 #### Code breakdown:
 - *Line 1: groups items in dataset by interval groupings.*
@@ -196,7 +196,7 @@ abline(v = intervalwithMaximumSteps, col = "red")
 legend("topright",legend = c(paste("Maximum:",intervalwithMaximumSteps)),col = c("red"),lty = 1)
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 #### Code breakdown:
 - *Line 1 -3 : Same as before, this just generates the average daily activity*
@@ -240,7 +240,7 @@ missingValueData <- datatoanalyze[is.na(datatoanalyze$steps),]
 with(missingValueData, plot(date,interval))
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 *There seem to be 8 days with missing values. The interval of missing values span the entire sampling period. This seems to imply that maybe the sensor for measuring the subjects activity was broken.*  
 
@@ -348,7 +348,7 @@ hist(histogramdata1$steps, xlab = "Total Steps per day", col = "yellow", main  =
 rug(histogramdata1$steps)
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 ```r
 meanValue <- round(mean(histogramdata1$steps, na.rm = TRUE), digits = 0)
@@ -377,7 +377,7 @@ medianValue <- round(median(histogramdata1$steps, na.rm = TRUE),digits = 0)
 legend("topright",legend = c(paste("Mean:",meanValue),paste("Median:",medianValue)),bty = "n")
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 #### <span style="color:red">Inference:<span>
 
@@ -471,7 +471,7 @@ Finally, create a panel plot of: average activity, broken by weekend and weekday
 xyplot(steps~interval|day_type, data = activitypattern1, layout= c(1,2), type = "l", main ="Average Activity pattern")
 ```
 
-![](PA1_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
 
 #### <span style="color:red">Inference:<span>  
 
