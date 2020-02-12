@@ -87,8 +87,7 @@ meanValue <- as.integer(round(mean(histogramdata$steps, na.rm = TRUE), digits = 
 
 ```
 
-**The mean is:** `r meanValue`  
-**The median is :** `r medianValue`  
+  
 
 #### Code breakdown:
 - *Line 1: groups items in dataset by date groupings.*
@@ -104,3 +103,257 @@ From the histogram it can be observed that:
 
 - So it looks like the subject being observed walks around 10000 to 15000 steps on a normal basis.
 
+### <span style="color: brown">Section 3: Mean and median number of steps taken each day each day </span> 
+
+From the histogram code, lines5 and line6 calculate the mean and median respectively. 
+
+```{r eval=FALSE}
+medianValue <- median(histogramdata$steps, na.rm = TRUE)
+meanValue <- as.integer(round(mean(histogramdata$steps, na.rm = TRUE), digits = 0))
+```
+
+**The mean is:** `r meanValue`  
+**The median is :** `r medianValue`  
+
+### <span style="color: brown">Section 4: What is the average daily activity pattern?(Time series plot) </span> 
+
+The next plot is going to show, what is the average activity of our subject measured by the number of steps. This will give insight as to when the subject is more active and moving out and about on a typical day.
+
+```{r}
+###=========================== What is the average daily activity pattern?
+activitypattern <- group_by(datatoanalyze,interval)
+activitypattern <- summarize_at(activitypattern, .vars = c("steps"),mean, na.rm = TRUE)
+with(activitypattern, plot(interval,steps, type = "l", col = "black", ylab = "Average Steps",main = "Average Daily Activity Pattern"))
+
+
+```
+
+#### Code breakdown:
+- *Line 1: groups items in dataset by interval groupings.*
+- *Line 2: Calculates the sum of steps, broken down by interval groupings.*
+- *Line 3: Draws a time series plot*
+
+#### <span style="color:red">Inference:<span> 
+From the plot, it looks like our subject is most active between the 600 to 1000 interval.  
+
+### <span style="color: brown">Section 5: The 5-minute interval that, on average, contains the maximum number of steps </span> 
+
+We now look at which particular interval has the maximum number os steps.  
+This is relevant as it shows when our subject usually moves about the most.
+
+```{r}
+activitypattern <- group_by(datatoanalyze,interval)
+activitypattern <- summarize_at(activitypattern, .vars = c("steps"),mean, na.rm = TRUE)
+with(activitypattern, plot(interval,steps, type = "l", col = "black", ylab = "Average Steps",main = "Average Daily Activity Pattern"))
+
+maximumSteps <- max(activitypattern$steps)
+intervalwithMaximumSteps <- activitypattern[grep(maximumSteps,activitypattern$steps),"interval"]
+abline(v = intervalwithMaximumSteps, col = "red")
+legend("topright",legend = c(paste("Maximum:",intervalwithMaximumSteps)),col = c("red"),lty = 1)
+```
+
+#### Code breakdown:
+- *Line 1 -3 : Same as before, this just generates the average daily activity*
+- *Line 4: Calculates the max value of steps walked*
+- *Line 5: Searches for the row in the data set with max steps walked and returns it's corresnponding interval*
+- *Line 6: Draws a vertical line on the plot at the interval where max steps occur*
+- *Line 7: Draws a legend, with Maximum interval displayed inside it*
+
+#### <span style="color:red">Inference:<span> 
+From the plot, with the line, we see that **`r intervalwithMaximumSteps`** is the interval when, the subject is most active as measured by the steps taken.  
+
+### <span style="color: brown">Section 6: Imputing missing values</span>  
+Imputing is a technique of replacing missing values in a dataset with appropriate values, that approximate, what could probably have been the missing value.  
+
+**Why do we need to impute values for our dataset?**
+```{r}
+summary(datatoanalyze)
+```
+
+- There are **2304**  missing steps in our data set.  
+
+- Therefore the need arises to figure out what those values are.  
+
+Let us now investigate the frequency of occurence of these missing values.  
+```{r}
+missingValueData <- datatoanalyze[is.na(datatoanalyze$steps),]
+
+with(missingValueData, plot(date,interval))
+```
+
+*There seem to be 8 days with missing values. The interval of missing values span the entire sampling period. This seems to imply that maybe the sensor for measuring the subjects activity was broken.*  
+
+*However, these days are too few in number, and can be easily replaced with the mean value , of activity at each of the intervals for these days.*
+
+**The imputation process**  
+
+*Step1: separate dataframe into: dataframe with NA steps;  dataframe with Non-NA steps*
+```{r}
+#Step1: separate dataframe into: dataframe with NA steps;  dataframe with Non-NA steps
+onlyNonNAData <- datatoanalyze[!is.na(datatoanalyze$steps),]
+onlyNAData <- datatoanalyze[is.na(datatoanalyze$steps),]
+```
+
+*Step2: get intervals inside the dataframe of NA steps*
+```{r}
+#Step2: get intervals inside the dataframe of NA steps
+listtotraverse <- unique(onlyNAData$interval)
+listtotraverse
+```
+*Step 3:*  
+
+- *Impute the missing values by filling in  with (means for the 5-minute intervals)*  
+
+*Do this by:*  
+
+- *Go through the listtotraverse, by interval, adding in the (means for the 5-minute intervals)*  
+
+
+```{r}
+#Step 3:
+#Impute the missing values by filling in  with (means for the 5-minute intervals)
+#Do this by:
+#Go through the listtotraverse, by interval, adding in the (means for the 5-minute intervals)
+#Add the newly imputed values into a newdataframeimputed
+
+for(val in listtotraverse)
+{
+  onlyNAData[onlyNAData$interval == val,"steps"] <- activitypattern[activitypattern$interval == val,"steps"]
+}
+```
+
+*Add the newly imputed values into a newdataframeimputed*
+```{r}
+#Combine imputed onlyNAData frame and onlyNonNAData frame to create the newly imputed dataset
+newimputedDataframe <- rbind(onlyNonNAData,onlyNAData)
+head(newimputedDataframe)
+```
+
+
+#### <span style="color:red">Imputation Result:<span>  
+*The final result is replacing all* **NAs** *with* **average(mean) steps for that interval**  
+
+
+### <span style="color: brown">Section 7: Histogram of the total number of steps taken each day after missing values are imputed</span> 
+
+Now we plot the histogram, for distribution of total steps taken by the subject.  
+The code is the same as what we used in **Section 2**  
+
+```{r}
+###==================Histogram of the total number of steps taken each day after missing values are imputed
+
+# Plot: The histogram with imputed data
+histogramdata1 <- group_by(newimputedDataframe, date)
+histogramdata1 <- summarise_at(histogramdata1, .vars = c("steps"),sum)
+hist(histogramdata1$steps, xlab = "Total Steps per day", col = "yellow", main  ="Total steps per day", ylim = c(0,40))
+rug(histogramdata1$steps)
+meanValue <- round(mean(histogramdata1$steps, na.rm = TRUE), digits = 0)
+medianValue <- median(histogramdata1$steps, na.rm = TRUE)
+```
+
+**We now plot a side by side comparison of histograms between non-imputed Versus imputed**
+```{r}
+#Plot: Histogram of Non-imputed , imputed data side by side. (1 row and 2 columns) layout
+par(mfrow = c(1,2))
+histogramdata <- group_by(datatoanalyze, date)
+histogramdata <- summarise_at(histogramdata, .vars = c("steps"),sum)
+hist(histogramdata$steps, xlab = "Total Steps per day", col = "yellow", main  ="(before imputation)", ylim = c(0,40))
+rug(histogramdata$steps)
+meanValue <- round(mean(histogramdata$steps, na.rm = TRUE), digits = 0)
+medianValue <- round(median(histogramdata$steps, na.rm = TRUE),digits = 0)
+legend("topright",legend = c(paste("Mean:",meanValue),paste("Median:",medianValue)),bty = "n")
+
+histogramdata1 <- group_by(newimputedDataframe, date)
+histogramdata1 <- summarise_at(histogramdata1, .vars = c("steps"),sum)
+hist(histogramdata1$steps, xlab = "Total Steps per day", col = "yellow", main  ="(after imputation)", ylim = c(0,40))
+rug(histogramdata1$steps)
+meanValue <- round(mean(histogramdata1$steps, na.rm = TRUE), digits = 0)
+medianValue <- round(median(histogramdata1$steps, na.rm = TRUE),digits = 0)
+legend("topright",legend = c(paste("Mean:",meanValue),paste("Median:",medianValue)),bty = "n")
+
+```
+
+#### <span style="color:red">Inference:<span>
+
+- We see there the mean and median become the same after imputation.
+- We also observe a considerable increase in observations in the 10000 - 15000 step range.
+
+
+### <span style="color: brown">Section 8: Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends</span> 
+
+We now proceed to break up the data, into weekdays and weekends to check, if there is any difference in the subjects behaviour interms or how active it is, on weekends versus weekdays.  
+
+We proceed to do that in the following manner:  
+```{r}
+newimputedDataframe$date <- as.Date(newimputedDataframe$date)
+
+#Display the days in terms of: Mon,Tue,Wed....., and list out their breakups in a table
+daysname <- (weekdays(newimputedDataframe$date,abbreviate = TRUE))
+table(daysname)
+```
+
+#### Code breakdown:
+- *Line 1  : Convert values in date column to date type*
+- *Line 2: Convert the dates to the name of their days: Mon, Tue, etc etc*
+- *Line 3: Display the breakup of how many Mons, Tues, ... Suns are there in a table*
+
+#### <span style="color:red">Inference:<span>  
+
+- There are 2 X 2304 Weekend days = 4608
+- There are 5 x 2592 Weekdays  = 12960 
+
+We now proceed to replace: Sat & Sun with Weekend, Mon-Fri with Weekday
+```{r}
+#Replace : (Mon- Fri, with: Weekday), (Sat-Sun, with the name: Weekend)
+daysname <- gsub("(Sat|Sun)","Weekend",daysname)
+daysname <- gsub("(Mon|Tue|Wed|Thu|Fri)","Weekday",daysname)
+table(daysname)
+```
+
+#### Code breakdown:
+- *Line 1: greps and subs Sat and Sun with Weekend*
+- *Line 2: greps and subs Mon- Fri with Weekdays *
+- *Line 3: Display the breakup Weekends and Weekdays*
+
+#### <span style="color:red">Inference:<span> 
+
+- We have now merged the days into 2 levels: Weekend & Weekday
+- Weekend is : 4608 days (this makes sense as summing up 2304 Saturdays and 2304 Sundays each gives this total)
+- Weekdays is: 12960 days (this makes sense as summing 2592 Mondays, 2592 Tuesdays, 2592 Wednesdays, 2592 Thursdays, 2592 Fridays, gives this total)
+
+We now proceed to add this breakups of Weekends and Weekdays as a new column to our dataset
+```{r}
+#Add a new column called day_type to our dataframe:
+newimputedDataframe$day_type <- as.factor(daysname)
+```
+
+```{r}
+#Group data by day_type(Weekend/Weekday), then group by Interval
+newimputedDataframe <- group_by(newimputedDataframe,day_type)
+newimputedDataframe <- group_by(newimputedDataframe,interval,add=TRUE)
+```
+#### Code breakdown:
+- *Line 1: group data by weekends/weekdays based on the newly added column*
+- *Line 2: group data based on the interval *
+
+Create a summary, that gives average steps: broken by interval, and grouped by weekend/weekday
+```{r}
+activitypattern1 <- summarize_at(newimputedDataframe, .vars = c("steps"),mean, na.rm = TRUE)
+```
+
+Finally, create a panel plot of: average activity, broken by weekend and weekday
+```{r}
+#Create the panel plot, for activity pattern for; Weekend/ Weekday
+xyplot(steps~interval|day_type, data = activitypattern1, layout= c(1,2), type = "l", main ="Average Activity pattern")
+
+
+
+```
+
+#### <span style="color:red">Inference:<span>  
+
+We infer the following about out subject:
+
+- On Weekdays: The subject seems to be really active beween 600 - 800 interval. The activity data is highly skewed in the beginning of the day and then tapers off.  
+
+- on Weekends: There seems to be a uniform distribution of activity,  the subject is consistently active over a large window fro, 600 - 2000. The activity data is more uniformly distributed with no noticable peaks.
