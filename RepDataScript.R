@@ -7,13 +7,15 @@ pathzip <- gsub("RepDataScript.R","activity.zip",path)
 pathcsv <- gsub(pathzip,"activity.csv",pathzip)
 datatoanalyze <- read.csv(unz(pathzip, pathcsv), header = TRUE)
 
-#Step1:Preprocess the data:-
-datatoanalyze$date <- as.Date(datatoanalyze$date)
-str(datatoanalyze)
-#Step2:Basic structure of the data:-
+
+#Step1:Basic structure of the data:-
 names(datatoanalyze)
 str(datatoanalyze)
 range(datatoanalyze$interval)
+
+#Step2:Preprocess the data:-
+datatoanalyze$date <- as.Date(datatoanalyze$date)
+str(datatoanalyze)
 
 
 

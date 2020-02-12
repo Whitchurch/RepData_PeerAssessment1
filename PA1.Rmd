@@ -1,0 +1,106 @@
+---
+title: 'Reproducable Research: Peer Assessment 1'
+author: "Whitchurch Muthumani"
+date: "2/12/2020"
+output: 
+  html_document:
+    keep_md: true
+---
+
+### <span style="color: brown">Introduction</span>
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a **Fitbit**, **Nike Fuelband**, or **Jawbone Up**. These type of devices are part of the "quantified self" movement -- a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.
+
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+### <span style="color: brown">Structure of the Data</span>
+The schema of this dataset is:  
+
+
+ * **steps**: Number of steps sampled in a 5-minute interval(missing values are represented with NAs).
+ * **date**: The date on which the measuremet was taken.
+ * **interval**: identifier of the interval in which measurement was taken.
+
+*The data is stored in a csv file:* **activity.zip**
+
+### <span style="color: brown">We will be performing the following tasks, and drawing inferences:</span>
+
+- **Section 1: Loading and preprocessing the data**
+
+- **Section 2: Histogram of the total number of steps taken each day**
+
+- **Section 3: Mean and median number of steps taken each day **
+
+- **Section 4: What is the average daily activity pattern?(Time series plot)**
+
+- **Section 5: The 5-minute interval that, on average, contains the maximum number of steps**
+
+- **Section 6: Imputing missing values**
+
+- **Section 7: Histogram of the total number of steps taken each day after missing values are imputed**
+
+- **Section 8: Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends**  
+
+
+### <span style="color: brown">Section 1: Loading and preprocessing the data</span>
+
+We begin the analysis by first setting up the environment by:  
+
+- 1. clearing out the environemt
+- 2. loading the dplyr, lattice libraries
+```{r}
+rm(list = ls())
+library(dplyr)
+library(lattice)
+```
+
+We then begin to load the data from the zipped file **activity.zip**  
+We make use of the **unz()** function in **read.csv** to read the file without unzipping it.  
+
+* **Then we view the basic structure of the data:** 
+
+```{r}
+###=========================== Loading and preprocessing the data
+datatoanalyze <- read.csv(unz("activity.zip", "activity.csv"), header = TRUE)
+#Step1:Basic structure of the data:-
+str(datatoanalyze)
+```
+
+
+* **Preprocess dates from character to date type: **
+```{r}
+#Step2:Preprocess the data:-
+datatoanalyze$date <- as.Date(datatoanalyze$date)
+str(datatoanalyze)
+```
+
+
+### <span style="color: brown">Section 2: Histogram of the total number of steps taken each day </span> 
+```{r}
+###=========================== Plot the histogram of Total number of steps taken each day:-
+histogramdata <- group_by(datatoanalyze, date)
+histogramdata <- summarise_at(histogramdata, .vars = c("steps"),sum)
+hist(histogramdata$steps, xlab = "Total Steps per day", col = "yellow", main  ="Total steps per day", ylim = c(0,40))
+rug(histogramdata$steps) 
+
+medianValue <- median(histogramdata$steps, na.rm = TRUE)
+meanValue <- as.integer(round(mean(histogramdata$steps, na.rm = TRUE), digits = 0))
+
+```
+
+**The mean is:** `r meanValue`  
+**The median is :** `r medianValue`  
+
+#### Code breakdown:
+- *Line 1: groups items in dataset by date groupings.*
+- *Line 2: Calculates the sum of steps, broken down by date groupings.*
+- *Line 3: Draws the histogram.*
+- *Line 4: Draws a rug underneath, to show the concentration of data.*
+- *Line 5 & 6: Calculate the mean and median of this histogram*  
+
+#### <span style="color:red">Inference:<span>    
+From the histogram it can be observed that: 
+
+- The largest occurences of steps taken per day seems to occur more often in the range of 10000 to 15000 steps  
+
+- So it looks like the subject being observed walks around 10000 to 15000 steps on a normal basis.
+
