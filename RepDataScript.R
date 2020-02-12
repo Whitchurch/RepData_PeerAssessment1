@@ -124,9 +124,8 @@ newimputedDataframe <- group_by(newimputedDataframe,interval,add=TRUE)
 activitypattern1 <- summarize_at(newimputedDataframe, .vars = c("steps"),mean, na.rm = TRUE)
 
 #Create the panel plot, for activity pattern for; Weekend/ Weekday
-xyplot(steps~interval|day_type, data = activitypattern1, layout= c(1,2), type = "l")
+xyplot(steps~interval|day_type, data = activitypattern1, layout= c(1,2), type = "l", main ="Average Activity pattern")
 
-with(activitypattern1, plot(interval,steps, type = "l", col = "black", ylab = "Average Steps",main = "Average Daily Activity Pattern"))
 
 
 
